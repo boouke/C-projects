@@ -11,7 +11,7 @@
 #define DELETE_MSG "You have selected deleting mode! Type in the files current adress starting at the root folder and it will be deleted!\n"
 #define SUCCESS_MSG "Operation succesful!\n"
 #define RENAME_MSG "You have selected renaming mode! Type in the files current adress starting at the root folder and name and a new name for it!\n"
-#define ERR_LEN "UNKNOWN ERROR(0x1) Please contact our support team ar github.com∕boouke and provide the memory adress"
+#define ERR_LEN "UNKNOWN ERROR(0x1) Please contact our support team ar github.com∕boouke and provide the memory adress\n"
 #define ERR_FILE_CREATE "FILE CREATE ERROR(0x2) Please restart the program, and try again. If you encounter the same problem contact our support team at github.com/boouke\n"
 
 void choose(int* int_operation);
@@ -104,18 +104,32 @@ void file_delete(void){
 }
 void dir_create(void) {
     int len = 50;
+    char perms[10];
     char* dir_name = (char*)malloc((len + 1) * sizeof(char));
     printf("%s", DIR_CREATE_MSG);
     while (scanf("%s", dir_name) != 1) {
         printf("%s at %p", ERR_LEN, dir_name);
     }
-    int creating = mkdir(dir_name, S_IRWXU);
+    printf("What permissions do you want to have? You can select all, read or write\n");
+    while(scanf("%s", perms) != 1 && strcmp(perms, "all") != 0 && strcmp(perms, "write") != 0 && strcmp(perms, "read") != 0 && strcmp(perms, "r&w") != 0){
+        printf("%s", ERR_LEN);
+    }
+    if(strcmp(perms, "all")){
+        strcpy(perms, "S_IRWXU");
+    }
+    else if(strcmp(perms, "read")){
+        strcpy(perms, "S_IWUSR");
+    }
+    else if(strcmp(perms, "write")){
+        strcpy(perms, "S_IXUSR");
+    }
+    int creating = mkdir(dir_name, perms);
     if(creating == 0){
         printf("%s", SUCCESS_MSG);
         return;
     }
     else{
-        printf("%s", ERR_LEN);
+        printf("%s at %p", ERR_LEN, dir_name);
         return;
     }
     free(dir_name);
